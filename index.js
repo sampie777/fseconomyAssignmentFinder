@@ -1,6 +1,11 @@
 function getInterestingAssignments() {
+    // Search for assignments no further than this distance from the airport
     const maxDistance = 70;
+    // Minimum total amount of the assignments for one airport (in dollar)
     const minPay = 1600;
+    // If set to false, the airport search API will be used (with default values for rentable Cessna Skyhawk)
+    const useCurrentWebpage = true;
+
 
     let _airports = [];
     const _proposeAirportModalId = "proposeAirport-Modal";
@@ -72,21 +77,29 @@ function getInterestingAssignments() {
         }, {});
     }
 
-    const loadAirports = () => fetch("https://server.fseconomy.net/airport.jsp", {
-        "credentials": "include",
-        "headers": {
-            "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Upgrade-Insecure-Requests": "1"
-        },
-        "referrer": "https://server.fseconomy.net/airport.jsp",
-        "body": "icao=&registration=&name=&model=1&rentable=rentable&distance=10&from=&goodsMode=sell&commodity=&minAmount=100&submit=true",
-        "method": "POST",
-        "mode": "cors"
-    })
-        .then(d => d.text());
+    const loadAirports = () => {
+        if (useCurrentWebpage) {
+            console.log("  Fetching airports from current page...");
+            return new Promise(resolve => resolve(document.body.innerHTML));
+        }
+
+        console.log("  Fetching airports from API...");
+        return fetch("https://server.fseconomy.net/airport.jsp", {
+            "credentials": "include",
+            "headers": {
+                "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Upgrade-Insecure-Requests": "1"
+            },
+            "referrer": "https://server.fseconomy.net/airport.jsp",
+            "body": "icao=&registration=&name=&model=1&rentable=rentable&distance=10&from=&goodsMode=sell&commodity=&minAmount=100&submit=true",
+            "method": "POST",
+            "mode": "cors"
+        })
+            .then(d => d.text());
+    }
 
     const loadAirport = (airport) => fetch("https://server.fseconomy.net/airport.jsp?icao=" + airport.code, {
         "credentials": "include",
@@ -106,20 +119,36 @@ function getInterestingAssignments() {
         console.debug("  (Storing API return output in variable: window.airportsText");
         window.airportsText = text;
 
-        const airportCodes = Array.from(text.matchAll(/href="airport.jsp\?icao=(.*?)">/g), m => m[1]);
-        const airportSizes = Array.from(text.matchAll(/<img src="\/img\/(.*?)\.gif"/g), m => m[1]);
-        const airportLocations = Array.from(text.matchAll(/<\/td>\r?\n[ \t]*\r?\n[ \t]*<td>(.*)\r?\n[ \t]*<\/td>\r?\n[ \t]*<td>(.*)/gm), m => m[1]);
-        const airportCountries = Array.from(text.matchAll(/<\/td>\r?\n[ \t]*\r?\n[ \t]*<td>(.*)\r?\n[ \t]*<\/td>\r?\n[ \t]*<td>(.*)/gm), m => m[2]);
+        let html = document.createElement("html");
+        html.innerHTML = text;
+        const table = html.querySelector(".goodssearchTable");
+        html = null;
+
+        if (table === null) {
+            if (useCurrentWebpage) {
+                alert("Could not find any airports. Are you sure you are using the right page?");
+            } else {
+                alert("Could not find any airports. API probably returned a wrong response.");
+            }
+            return [];
+        }
+
+        const rows = table.querySelectorAll("tbody tr");
 
         const airports = [];
-        for (let i = 0; i < airportCodes.length; i++) {
+        Array.from(rows).forEach(row => {
+            let columns = row.querySelectorAll("td");
+            if (columns.length === 1) {
+                return
+            }
+
             airports.push(new Airport(
-                airportCodes[i],
-                airportSizes[i],
-                airportLocations[i],
-                airportCountries[i],
+                columns[0].innerText.trim(),    // code
+                columns[0].querySelector("img").src.match(/\/img\/(.*?)\.gif/)[1],  // size
+                columns[1].innerText.trim(),    // location
+                columns[2].innerText.trim(),    // country
             ));
-        }
+        });
         return airports;
     }
 
@@ -145,14 +174,14 @@ function getInterestingAssignments() {
 
                 assignments.push(new Assignment(
                     columns[1].innerText.trim()
-                        .replace("$", "")
-                        .replace(",", "") * 1,   // pay
+                              .replace("$", "")
+                              .replace(",", "") * 1,   // pay
                     columns[2].innerText.trim(),     // from
                     columns[3].innerText.trim(),     // destination
                     columns[4].innerText.trim()
-                        .replace(",", "") * 1,    // distance
+                              .replace(",", "") * 1,    // distance
                     columns[5].innerText.trim()
-                        .replace(",", "") * 1,    // bearing
+                              .replace(",", "") * 1,    // bearing
                     columns[6].innerText.trim(),     // cargo
                     columns[7].innerText.trim(),     // typ
                     columns[8].innerText.trim(),     // aircraft
@@ -179,8 +208,8 @@ function getInterestingAssignments() {
                     columns[3].innerText.trim(),    // home
                     columns[4].innerText.trim(),    // price
                     columns[5].innerText.trim()
-                        .replace("$", "")
-                        .replace(",", "") * 1,   // bonus
+                              .replace("$", "")
+                              .replace(",", "") * 1,   // bonus
                 ));
             });
             return aircraft;
