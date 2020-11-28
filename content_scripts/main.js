@@ -229,15 +229,15 @@
 
                     assignments.push(new Assignment(
                         columns[payColumn].innerText.trim()
-                                  .replace("$", "")
-                                  .replace(",", "") * 1,   // pay
+                                          .replace("$", "")
+                                          .replace(",", "") * 1,   // pay
                         columns[fromColumn].innerText.trim(),     // from
                         columns[destinationColumn].innerText.trim(),     // destination
                         destinationImage,     // destinationImage
                         columns[distanceColumn].innerText.trim()
-                                  .replace(",", "") * 1,    // distance
+                                               .replace(",", "") * 1,    // distance
                         columns[bearingColumn].innerText.trim()
-                                  .replace(",", "") * 1,    // bearing
+                                              .replace(",", "") * 1,    // bearing
                         bearingImage,  // bearingImage
                         columns[cargoColumn].innerText.trim(),     // cargo
                         columns[typColumn].innerText.trim(),     // typ
@@ -285,8 +285,8 @@
                         homeBearingImage,  // homeBearingImage
                         columns[rentalPriceColumn].innerText.trim(),    // price
                         columns[bonusColumn].innerText.trim()
-                                  .replace("$", "")
-                                  .replace(",", "") * 1,   // bonus
+                                            .replace("$", "")
+                                            .replace(",", "") * 1,   // bonus
                     ));
                 });
                 return aircraft;
@@ -442,7 +442,10 @@
     <div class="proposeAirport-Title">
         <span>Airport:</span>
         <a href="airport.jsp?icao=${airport.code}" target="_blank">${airport.code}</a>
-        <img src="${airport.image}" alt="">
+        <a href="#" id="gmap" title="Click to open map of this airport"
+           onclick="gmap.setSize(620,530);gmap.setUrl('gmap.jsp?icao=${airport.code}');gmap.showPopup('gmap');return false;">
+            <img src="${airport.image}" alt=""/>
+        </a>
     </div>
     <p>
         <i>${airport.location}</i>
@@ -466,12 +469,18 @@
         <tr>
             <td>\$ ${cur.pay}</td>
             <td>
-                <img src="${cur.destinationImage}" alt=""/>
+                <a href="#" id="gmap" title="Click to open map of this airport"
+                   onclick="gmap.setSize(620,530);gmap.setUrl('gmap.jsp?icao=${cur.destination}');gmap.showPopup('gmap');return false;">
+                    <img src="${cur.destinationImage}" alt=""/>
+                </a>
                 <a href="airport.jsp?icao=${cur.destination}" target="_blank">${cur.destination}</a>
             </td>
             <td>
                 ${cur.distance}
-                <img src="${cur.bearingImage}" alt=""/>
+                <a href="#" id="gmap" title="Click to open map with main airport and this airport in one view"
+                   onclick="gmap.setSize(620,530);gmap.setUrl('gmap.jsp?icao=${airport.code}&icaod=${cur.destination}');gmap.showPopup('gmap');return false;">
+                    <img src="${cur.bearingImage}" alt=""/>
+                </a>
             </td>
             <td>${cur.cargo}</td>
             <td>${cur.expires}</td>
@@ -501,7 +510,10 @@
             <td>${cur.typ}</td>
             <td>${cur.equipment}</td>
             <td>
-                <img src="${cur.homeBearingImage}" alt=""/>
+                <a href="#" id="gmap" title="Click to open map with main airport and this airport in one view"
+                   onclick="gmap.setSize(620,530);gmap.setUrl('gmap.jsp?icao=${airport.code}&icaod=${cur.home}');gmap.showPopup('gmap');return false;">
+                        <img src="${cur.homeBearingImage}" alt=""/>
+                </a>
                 <a href="airport.jsp?icao=${cur.home}" target="_blank">${cur.home}</a>
             </td>
             <td>${cur.rentalPrice}</td>
@@ -521,7 +533,8 @@
             Next
         </button>
     </div>
-</div>`;
+</div>
+`;
             document.body.appendChild(modal);
 
             const exitButton = document.getElementById("proposeAirport-Exit");
