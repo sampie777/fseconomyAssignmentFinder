@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <style>
+        * {
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
+
+        body {
+            padding: 15px 30px;
+            background-color: #eee;
+        }
+
+        #title {
+            font-size: 14pt;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        #errors {
+            color: #740000;
+        }
+
+        label {
+            display: block;
+            font-weight: 100;
+        }
+
+        input[type=text], input[type=number] {
+            width: 100%;
+        }
+
+        input[type=number] {
+            text-align: right;
+            font-size: 105%;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">fseconomy Assignment Finder</div>
+
+    <form id="form" action="#">
+        <p>
+            <label>Max. assignment distance (NM)</label>
+            <input type="number"
+                   title="Search for assignments no further than this distance from the airport"
+                   name="maxDistance" value="70" min="1" required/>
+        </p>
+        <p>
+            <label>Min. pay of total assignments ($)</label>
+            <input type="number"
+                   title="Minimum total amount of the assignments for one airport (in dollar)"
+                   name="minPay" value="1600" min="1" required/>
+        </p>
+        <p>
+            <label>Highlight aircraft matching: </label>
+            <input type="text"
+                   title="Aircraft types matching this value will be highlighted for better clearity"
+                   name="preferredAircraft" value="Cessna 172" />
+        </p>
+        <p>
+            <label>Use airports on this page</label>
+            <input type="checkbox"
+                   title="If set to false, the airport search API will be used (with default values for rentable Cessna Skyhawk)"
+                   name="useCurrentWebpage" checked/>
+        </p>
+
+        <div class="controls">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <div id="errors"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

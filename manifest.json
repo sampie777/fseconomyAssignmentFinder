@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "fseconomy Assignment Finder",
+  "description": "Plugin to help search for assignments on the fseconomy website",
+  "version": "1.0",
+  "permissions": [
+    "activeTab"
+  ],
+  "page_action": {
+    "default_icon": "icons/icon.png",
+    "default_title": "Assignment Finder",
+    "default_popup": "popup/popup.html",
+    "show_matches": [
+      "*://server.fseconomy.net/*"
+    ]
+  }
+}

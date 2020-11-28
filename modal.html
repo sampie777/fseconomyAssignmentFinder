@@ -36,6 +36,10 @@
         background-color: #f4f4f4;
     }
 
+    #proposeAirport-Modal table tr.aircraft-match {
+        background-color: #ecf1ff;
+    }
+
     .proposeAirport-Title {
         text-align: center;
         font-size: 22pt;
@@ -118,7 +122,7 @@
         </thead>
         <tbody>
         ${airport.aircraft.reduce((acc, cur) => acc + `
-        <tr>
+        <tr class="${(new RegExp(preferredAircraft, "i")).test(cur.typ) ? "aircraft-match" : ""}">
             <td>
                 <a href="${cur.href}" target="_blank">${cur.id}</a>
             </td>
