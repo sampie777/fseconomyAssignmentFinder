@@ -13,9 +13,10 @@
     .proposeAirport-Content {
         background-color: #ffffff;
         width: 80%;
-        max-width: 850px;
+        max-width: 1100px;
         margin: 0 auto;
         margin-top: 50px;
+        margin-bottom: 150px;
         padding: 50px 80px;
         border: 1px solid #888;
         border-radius: 4px;
@@ -47,6 +48,10 @@
         font-size: 38pt;
     }
 
+    .proposeAirport-Title img {
+        margin-top: -3px;
+    }
+
     #proposeAirport-Modal button {
         font-size: 14pt;
         padding: 4px 30px;
@@ -60,6 +65,7 @@
     <div class="proposeAirport-Title">
         <span>Airport:</span>
         <a href="airport.jsp?icao=${airport.code}" target="_blank">${airport.code}</a>
+        <img src="${airport.image}" alt="">
     </div>
     <p>
         <i>${airport.location}</i>
@@ -71,11 +77,11 @@
     <table>
         <thead>
         <tr>
-            <th>Pay</th>
-            <th>Destination</th>
-            <th>Distance</th>
+            <th style="width: 75px">Pay</th>
+            <th style="width: 100px">Destination</th>
+            <th style="width: 85px">Distance</th>
             <th>Cargo</th>
-            <th>Expires</th>
+            <th style="width: 90px">Expires</th>
         </tr>
         </thead>
         <tbody>
@@ -83,9 +89,13 @@
         <tr>
             <td>\$ ${cur.pay}</td>
             <td>
+                <img src="${cur.destinationImage}" alt=""/>
                 <a href="airport.jsp?icao=${cur.destination}" target="_blank">${cur.destination}</a>
             </td>
-            <td>${cur.distance}</td>
+            <td>
+                ${cur.distance}
+                <img src="${cur.bearingImage}" alt=""/>
+            </td>
             <td>${cur.cargo}</td>
             <td>${cur.expires}</td>
         </tr>
@@ -97,12 +107,12 @@
     <table>
         <thead>
         <tr>
-            <th>ID</th>
+            <th style="width: 85px">ID</th>
             <th>Type</th>
-            <th>Equipment</th>
-            <th>Home</th>
-            <th>Price</th>
-            <th>Bonus</th>
+            <th style="width: 100px">Equipment</th>
+            <th style="width: 80px">Home</th>
+            <th style="min-width: 130px">Price</th>
+            <th style="width: 70px">Bonus</th>
         </tr>
         </thead>
         <tbody>
@@ -114,6 +124,7 @@
             <td>${cur.typ}</td>
             <td>${cur.equipment}</td>
             <td>
+                <img src="${cur.homeBearingImage}" alt=""/>
                 <a href="airport.jsp?icao=${cur.home}" target="_blank">${cur.home}</a>
             </td>
             <td>${cur.rentalPrice}</td>

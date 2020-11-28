@@ -14,11 +14,13 @@ function getInterestingAssignments() {
         constructor(
             code,
             size,
+            image,
             location,
             country
         ) {
             this.code = code;
             this.size = size;
+            this.image = image;
             this.location = location;
             this.country = country;
 
@@ -32,8 +34,10 @@ function getInterestingAssignments() {
         constructor(pay,
                     from,
                     destination,
+                    destinationImage,
                     distance,
                     bearing,
+                    bearingImage,
                     cargo,
                     typ,
                     aircraft,
@@ -41,8 +45,10 @@ function getInterestingAssignments() {
             this.pay = pay;
             this.from = from;
             this.destination = destination;
+            this.destinationImage = destinationImage;
             this.distance = distance;
             this.bearing = bearing;
+            this.bearingImage = bearingImage;
             this.cargo = cargo;
             this.typ = typ;
             this.aircraft = aircraft;
@@ -57,6 +63,7 @@ function getInterestingAssignments() {
             typ,
             equipment,
             home,
+            homeBearingImage,
             rentalPrice,
             bonus) {
             this.href = href;
@@ -64,6 +71,7 @@ function getInterestingAssignments() {
             this.typ = typ;
             this.equipment = equipment;
             this.home = home;
+            this.homeBearingImage = homeBearingImage;
             this.rentalPrice = rentalPrice;
             this.bonus = bonus;
         }
@@ -142,9 +150,16 @@ function getInterestingAssignments() {
                 return
             }
 
+            let image = "";
+            const imageElement = columns[0].querySelector("img")
+            if (imageElement !== null) {
+                image = imageElement.src.match(/\/img\/.*?\.gif/)[0]
+            }
+
             airports.push(new Airport(
                 columns[0].innerText.trim(),    // code
-                columns[0].querySelector("img").src.match(/\/img\/(.*?)\.gif/)[1],  // size
+                image.match(/\/img\/(.*?)\.gif/)[1],  // size
+                image,  // image
                 columns[1].innerText.trim(),    // location
                 columns[2].innerText.trim(),    // country
             ));
@@ -172,16 +187,30 @@ function getInterestingAssignments() {
                     return
                 }
 
+                let destinationImage = "";
+                const destinationImageElement = columns[3].querySelector("img")
+                if (destinationImageElement !== null) {
+                    destinationImage = destinationImageElement.src.match(/\/img\/.*?\.gif/)[0]
+                }
+
+                let bearingImage = "";
+                const bearingImageElement = columns[5].querySelector("img")
+                if (bearingImageElement !== null) {
+                    bearingImage = bearingImageElement.src.match(/\/img\/.*?\.gif/)[0]
+                }
+
                 assignments.push(new Assignment(
                     columns[1].innerText.trim()
                               .replace("$", "")
                               .replace(",", "") * 1,   // pay
                     columns[2].innerText.trim(),     // from
                     columns[3].innerText.trim(),     // destination
+                    destinationImage,     // destinationImage
                     columns[4].innerText.trim()
                               .replace(",", "") * 1,    // distance
                     columns[5].innerText.trim()
                               .replace(",", "") * 1,    // bearing
+                    bearingImage,  // bearingImage
                     columns[6].innerText.trim(),     // cargo
                     columns[7].innerText.trim(),     // typ
                     columns[8].innerText.trim(),     // aircraft
@@ -200,12 +229,20 @@ function getInterestingAssignments() {
                 if (columns.length === 1) {
                     return
                 }
+
+                let homeBearingImage = "";
+                const bearingImageElement = columns[5].querySelector("img")
+                if (bearingImageElement !== null) {
+                    homeBearingImage = bearingImageElement.src.match(/\/img\/.*?\.gif/)[0]
+                }
+
                 aircraft.push(new Aircraft(
                     columns[0].querySelector("a").href,    // href
                     columns[0].innerText.trim(),    // id
                     columns[1].innerText.trim(),    // type
                     columns[2].innerText.trim(),    // equipment
                     columns[3].innerText.trim(),    // home
+                    homeBearingImage,  // homeBearingImage
                     columns[4].innerText.trim(),    // price
                     columns[5].innerText.trim()
                               .replace("$", "")
@@ -287,7 +324,7 @@ function getInterestingAssignments() {
     function proposeAirport(airport) {
         if (airport.interestingAssignments.length === 0) {
             console.log("  Airport has no interesting assignments, skipping this one", airport);
-            // return nextAirport();
+            return nextAirport();
         }
         console.log("  Proposing airport...", airport);
 
@@ -310,9 +347,10 @@ function getInterestingAssignments() {
     .proposeAirport-Content {
         background-color: #ffffff;
         width: 80%;
-        max-width: 850px;
+        max-width: 1100px;
         margin: 0 auto;
         margin-top: 50px;
+        margin-bottom: 150px;
         padding: 50px 80px;
         border: 1px solid #888;
         border-radius: 4px;
@@ -344,6 +382,10 @@ function getInterestingAssignments() {
         font-size: 38pt;
     }
 
+    .proposeAirport-Title img {
+        margin-top: -3px;
+    }
+
     #proposeAirport-Modal button {
         font-size: 14pt;
         padding: 4px 30px;
@@ -357,6 +399,7 @@ function getInterestingAssignments() {
     <div class="proposeAirport-Title">
         <span>Airport:</span>
         <a href="airport.jsp?icao=${airport.code}" target="_blank">${airport.code}</a>
+        <img src="${airport.image}" alt="">
     </div>
     <p>
         <i>${airport.location}</i>
@@ -368,11 +411,11 @@ function getInterestingAssignments() {
     <table>
         <thead>
         <tr>
-            <th>Pay</th>
-            <th>Destination</th>
-            <th>Distance</th>
+            <th style="width: 75px">Pay</th>
+            <th style="width: 100px">Destination</th>
+            <th style="width: 85px">Distance</th>
             <th>Cargo</th>
-            <th>Expires</th>
+            <th style="width: 90px">Expires</th>
         </tr>
         </thead>
         <tbody>
@@ -380,9 +423,13 @@ function getInterestingAssignments() {
         <tr>
             <td>\$ ${cur.pay}</td>
             <td>
+                <img src="${cur.destinationImage}" alt=""/>
                 <a href="airport.jsp?icao=${cur.destination}" target="_blank">${cur.destination}</a>
             </td>
-            <td>${cur.distance}</td>
+            <td>
+                ${cur.distance}
+                <img src="${cur.bearingImage}" alt=""/>
+            </td>
             <td>${cur.cargo}</td>
             <td>${cur.expires}</td>
         </tr>
@@ -394,12 +441,12 @@ function getInterestingAssignments() {
     <table>
         <thead>
         <tr>
-            <th>ID</th>
+            <th style="width: 85px">ID</th>
             <th>Type</th>
-            <th>Equipment</th>
-            <th>Home</th>
-            <th>Price</th>
-            <th>Bonus</th>
+            <th style="width: 100px">Equipment</th>
+            <th style="width: 80px">Home</th>
+            <th style="min-width: 130px">Price</th>
+            <th style="width: 70px">Bonus</th>
         </tr>
         </thead>
         <tbody>
@@ -411,6 +458,7 @@ function getInterestingAssignments() {
             <td>${cur.typ}</td>
             <td>${cur.equipment}</td>
             <td>
+                <img src="${cur.homeBearingImage}" alt=""/>
                 <a href="airport.jsp?icao=${cur.home}" target="_blank">${cur.home}</a>
             </td>
             <td>${cur.rentalPrice}</td>
