@@ -1,0 +1,136 @@
+<style>
+    #proposeAirport-Modal {
+        z-index: 2000;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .proposeAirport-Content {
+        background-color: #ffffff;
+        width: 80%;
+        max-width: 850px;
+        margin: 0 auto;
+        margin-top: 50px;
+        padding: 50px 80px;
+        border: 1px solid #888;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    #proposeAirport-Modal table {
+        width: 100%;
+    }
+
+    #proposeAirport-Modal table tr td, #proposeAirport-Modal table tr th {
+        padding: 1px 5px
+    }
+
+    #proposeAirport-Modal table tbody tr:hover {
+        background-color: #f4f4f4;
+    }
+
+    .proposeAirport-Title {
+        text-align: center;
+        font-size: 22pt;
+    }
+
+    .proposeAirport-Title span {
+        margin-left: -47px;
+    }
+
+    .proposeAirport-Title a {
+        font-size: 38pt;
+    }
+
+    #proposeAirport-Modal button {
+        font-size: 14pt;
+        padding: 4px 30px;
+        border-radius: 7px;
+        border: 1px solid #888;
+        margin: auto 10px;
+    }
+</style>
+<div class="proposeAirport-Content">
+
+    <div class="proposeAirport-Title">
+        <span>Airport:</span>
+        <a href="airport.jsp?icao=${airport.code}" target="_blank">${airport.code}</a>
+    </div>
+    <p>
+        <i>${airport.location}</i>
+    </p>
+
+    <p>
+        <strong>${airport.interestingAssignments.length} Interesting assignments</strong>
+    </p>
+    <table>
+        <thead>
+        <tr>
+            <th>Pay</th>
+            <th>Destination</th>
+            <th>Distance</th>
+            <th>Cargo</th>
+            <th>Expires</th>
+        </tr>
+        </thead>
+        <tbody>
+        ${airport.interestingAssignments.reduce((acc, cur) => acc + `
+        <tr>
+            <td>\$ ${cur.pay}</td>
+            <td>
+                <a href="airport.jsp?icao=${cur.destination}" target="_blank">${cur.destination}</a>
+            </td>
+            <td>${cur.distance}</td>
+            <td>${cur.cargo}</td>
+            <td>${cur.expires}</td>
+        </tr>
+        `, "")}
+        </tbody>
+    </table>
+    <br/>
+    <p><strong>Available aircraft:</strong></p>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Equipment</th>
+            <th>Home</th>
+            <th>Price</th>
+            <th>Bonus</th>
+        </tr>
+        </thead>
+        <tbody>
+        ${airport.aircraft.reduce((acc, cur) => acc + `
+        <tr>
+            <td>
+                <a href="${cur.href}" target="_blank">${cur.id}</a>
+            </td>
+            <td>${cur.typ}</td>
+            <td>${cur.equipment}</td>
+            <td>
+                <a href="airport.jsp?icao=${cur.home}" target="_blank">${cur.home}</a>
+            </td>
+            <td>${cur.rentalPrice}</td>
+            <td>\$ ${cur.bonus}</td>
+        </tr>
+        `, "")}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 40px; text-align: center;">
+        <button id="proposeAirport-Exit"
+                style="background-color: #ff9b9b; ">
+            Exit
+        </button>
+        <button id="proposeAirport-Next"
+                style="background-color: #d1e9ff; ">
+            Next
+        </button>
+    </div>
+</div>
