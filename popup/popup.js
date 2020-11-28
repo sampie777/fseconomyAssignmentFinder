@@ -20,7 +20,7 @@ function listenForClicks() {
                     "maxDistance": document.querySelector("input[name=maxDistance]").value,
                     "minPay": document.querySelector("input[name=minPay]").value,
                     "preferredAircraft": document.querySelector("input[name=preferredAircraft]").value,
-                    "useCurrentWebpage": document.querySelector("input[name=useCurrentWebpage]").value === "on",
+                    "useCurrentWebpage": document.querySelector("input[name=useCurrentWebpage]").checked,
                 }
 
                 browser.tabs.query({active: true, currentWindow: true})

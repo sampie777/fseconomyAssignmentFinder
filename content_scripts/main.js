@@ -131,8 +131,7 @@
             .then(d => d.text());
 
         function processAirports(text) {
-            console.debug("  (Storing API return output in variable: window.airportsText");
-            window.airportsText = text;
+            console.log("  Processing airports...");
 
             let html = document.createElement("html");
             html.innerHTML = text;
@@ -141,12 +140,21 @@
 
             if (table === null) {
                 if (useCurrentWebpage) {
-                    alert("Could not find any airports. Are you sure you are using the right page?");
+                    console.error("Could not find airports table. Are you sure you are using the right page?");
+                    alert("Could not find airports table. Are you sure you are on the right page?");
                 } else {
-                    alert("Could not find any airports. API probably returned a wrong response.");
+                    console.error("Could not find airports table. API probably returned a wrong response:", text);
+                    alert("Could not find airports table. API probably returned a wrong response.");
                 }
                 return [];
             }
+
+            const columnNamesElements = table.querySelectorAll("thead tr th");
+            const columnNames = Array.from(columnNamesElements).map(e => e.innerText.trim().toLowerCase());
+            const codeColumn = columnNames.indexOf("ICAO".toLowerCase());
+            const imageColumn = columnNames.indexOf("ICAO".toLowerCase());
+            const locationColumn = columnNames.indexOf("Name".toLowerCase());
+            const countryColumn = columnNames.indexOf("Country".toLowerCase());
 
             const rows = table.querySelectorAll("tbody tr");
 
@@ -158,25 +166,24 @@
                 }
 
                 let image = "";
-                const imageElement = columns[0].querySelector("img")
+                const imageElement = columns[imageColumn].querySelector("img")
                 if (imageElement !== null) {
                     image = imageElement.src.match(/\/img\/.*?\.gif/)[0]
                 }
 
                 airports.push(new Airport(
-                    columns[0].innerText.trim(),    // code
+                    columns[codeColumn].innerText.trim(),    // code
                     image.match(/\/img\/(.*?)\.gif/)[1],  // size
                     image,  // image
-                    columns[1].innerText.trim(),    // location
-                    columns[2].innerText.trim(),    // country
+                    columns[locationColumn].innerText.trim(),    // location
+                    columns[countryColumn].innerText.trim(),    // country
                 ));
             });
             return airports;
         }
 
         function processAirport(airport, text) {
-            console.log("Storing API return output in variable: window.airportText");
-            window.airportText = text;
+            console.log("  Processing airport...");
 
             let html = document.createElement("html");
             html.innerHTML = text;
@@ -185,6 +192,20 @@
             html = null;
 
             function extractAssignments() {
+                const columnNamesElements = assignmentTable.querySelectorAll("thead tr th");
+                const columnNames = Array.from(columnNamesElements).map(e => e.innerText.trim().toLowerCase());
+                const payColumn = columnNames.indexOf("Pay".toLowerCase());
+                const fromColumn = columnNames.indexOf("From".toLowerCase());
+                const destinationColumn = columnNames.indexOf("Dest".toLowerCase());
+                const destinationImageColumn = columnNames.indexOf("Dest".toLowerCase());
+                const distanceColumn = columnNames.indexOf("NM".toLowerCase());
+                const bearingColumn = columnNames.indexOf("Brg".toLowerCase());
+                const bearingImageColumn = columnNames.indexOf("Brg".toLowerCase());
+                const cargoColumn = columnNames.indexOf("Cargo".toLowerCase());
+                const typColumn = columnNames.indexOf("Type".toLowerCase());
+                const aircraftColumn = columnNames.indexOf("Aircraft".toLowerCase());
+                const expiresColumn = columnNames.indexOf("Expires".toLowerCase());
+
                 const rows = assignmentTable.querySelectorAll("tbody tr");
 
                 const assignments = [];
@@ -195,39 +216,51 @@
                     }
 
                     let destinationImage = "";
-                    const destinationImageElement = columns[3].querySelector("img")
+                    const destinationImageElement = columns[destinationImageColumn].querySelector("img")
                     if (destinationImageElement !== null) {
                         destinationImage = destinationImageElement.src.match(/\/img\/.*?\.gif/)[0]
                     }
 
                     let bearingImage = "";
-                    const bearingImageElement = columns[5].querySelector("img")
+                    const bearingImageElement = columns[bearingImageColumn].querySelector("img")
                     if (bearingImageElement !== null) {
                         bearingImage = bearingImageElement.src.match(/\/img\/.*?\.gif/)[0]
                     }
 
                     assignments.push(new Assignment(
-                        columns[1].innerText.trim()
+                        columns[payColumn].innerText.trim()
                                   .replace("$", "")
                                   .replace(",", "") * 1,   // pay
-                        columns[2].innerText.trim(),     // from
-                        columns[3].innerText.trim(),     // destination
+                        columns[fromColumn].innerText.trim(),     // from
+                        columns[destinationColumn].innerText.trim(),     // destination
                         destinationImage,     // destinationImage
-                        columns[4].innerText.trim()
+                        columns[distanceColumn].innerText.trim()
                                   .replace(",", "") * 1,    // distance
-                        columns[5].innerText.trim()
+                        columns[bearingColumn].innerText.trim()
                                   .replace(",", "") * 1,    // bearing
                         bearingImage,  // bearingImage
-                        columns[6].innerText.trim(),     // cargo
-                        columns[7].innerText.trim(),     // typ
-                        columns[8].innerText.trim(),     // aircraft
-                        columns[9].innerText.trim(),     // expires
+                        columns[cargoColumn].innerText.trim(),     // cargo
+                        columns[typColumn].innerText.trim(),     // typ
+                        columns[aircraftColumn].innerText.trim(),     // aircraft
+                        columns[expiresColumn].innerText.trim(),     // expires
                     ));
                 });
                 return assignments;
             }
 
             function extractAircraft() {
+                const columnNamesElements = aircraftTable.querySelectorAll("thead tr th");
+                const columnNames = Array.from(columnNamesElements).map(e => e.innerText.trim().toLowerCase());
+                const hrefColumn = columnNames.indexOf("Id".toLowerCase());
+                const idColumn = columnNames.indexOf("Id".toLowerCase());
+                const typColumn = columnNames.indexOf("Type".toLowerCase());
+                const equipmentColumn = columnNames.indexOf("Equipment".toLowerCase());
+                const homeColumn = columnNames.indexOf("Home".toLowerCase());
+                const homeBearingImageColumn = columnNames.indexOf("Bonus".toLowerCase());
+                const rentalPriceColumn = columnNames.indexOf("Rental Price".toLowerCase());
+                const bonusColumn = columnNames.indexOf("Bonus".toLowerCase());
+
+
                 const rows = aircraftTable.querySelectorAll("tbody tr");
 
                 const aircraft = [];
@@ -238,20 +271,20 @@
                     }
 
                     let homeBearingImage = "";
-                    const bearingImageElement = columns[5].querySelector("img")
+                    const bearingImageElement = columns[homeBearingImageColumn].querySelector("img")
                     if (bearingImageElement !== null) {
                         homeBearingImage = bearingImageElement.src.match(/\/img\/.*?\.gif/)[0]
                     }
 
                     aircraft.push(new Aircraft(
-                        columns[0].querySelector("a").href,    // href
-                        columns[0].innerText.trim(),    // id
-                        columns[1].innerText.trim(),    // type
-                        columns[2].innerText.trim(),    // equipment
-                        columns[3].innerText.trim(),    // home
+                        columns[hrefColumn].querySelector("a").href,    // href
+                        columns[idColumn].innerText.trim(),    // id
+                        columns[typColumn].innerText.trim(),    // type
+                        columns[equipmentColumn].innerText.trim(),    // equipment
+                        columns[homeColumn].innerText.trim(),    // home
                         homeBearingImage,  // homeBearingImage
-                        columns[4].innerText.trim(),    // price
-                        columns[5].innerText.trim()
+                        columns[rentalPriceColumn].innerText.trim(),    // price
+                        columns[bonusColumn].innerText.trim()
                                   .replace("$", "")
                                   .replace(",", "") * 1,   // bonus
                     ));
@@ -284,7 +317,7 @@
         }
 
         function processAssignments(airport) {
-            console.log("  Process assignments...");
+            console.log("  Processing assignments...");
             airport.interestingAssignments = filterAssignments(airport.assignments);
         }
 
@@ -296,7 +329,7 @@
         }
 
         function exitProcess() {
-            console.log("Exiting");
+            console.debug("Exiting");
             removeModal();
         }
 
@@ -348,16 +381,14 @@
         overflow: auto;
         top: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: rgba(0, 0, 0, 0.2);
     }
 
     .proposeAirport-Content {
         background-color: #ffffff;
         width: 80%;
         max-width: 1100px;
-        margin: 0 auto;
-        margin-top: 50px;
-        margin-bottom: 150px;
+        margin: 50px auto 150px;
         padding: 50px 80px;
         border: 1px solid #888;
         border-radius: 4px;
@@ -506,7 +537,7 @@
             nextAirport();
         }
 
-        function process() {
+        function runProcess() {
             console.log("Loading all airports...");
             loadAirports()
                 .then(text => processAirports(text))
@@ -517,7 +548,6 @@
                 });
         }
 
-        process();
+        runProcess();
     }
-
 })();
