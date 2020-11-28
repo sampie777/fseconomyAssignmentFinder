@@ -355,6 +355,7 @@ function getInterestingAssignments() {
         border: 1px solid #888;
         border-radius: 4px;
         overflow-x: auto;
+        box-shadow: 0 4px 5px 1px rgba(0, 0, 0, 0.2);
     }
 
     #proposeAirport-Modal table {
@@ -470,7 +471,7 @@ function getInterestingAssignments() {
 
     <div style="margin-top: 40px; text-align: center;">
         <button id="proposeAirport-Exit"
-                style="background-color: #ff9b9b; ">
+                style="color: #7a5959; ">
             Exit
         </button>
         <button id="proposeAirport-Next"
