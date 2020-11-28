@@ -114,7 +114,7 @@
             }
 
             console.log("  Fetching airports from API...");
-            return fetch("https://server.fseconomy.net/airport.jsp", {
+            return fetch(`${window.location.origin}/airport.jsp`, {
                 "credentials": "include",
                 "body": "icao=&registration=&name=&model=1&rentable=rentable&distance=10&from=&goodsMode=sell&commodity=&minAmount=100&submit=true",
                 "method": "POST",
@@ -123,7 +123,7 @@
                 .then(d => d.text());
         }
 
-        const loadAirport = (airport) => fetch("https://server.fseconomy.net/airport.jsp?icao=" + airport.code, {
+        const loadAirport = (airport) => fetch(`${window.location.origin}/airport.jsp?icao=${airport.code}`, {
             "credentials": "include",
             "method": "GET",
             "mode": "cors"
