@@ -16,3 +16,8 @@ If you want to restart the search, you don't need to reload the page. Just hist 
 1. Open Firefox and browse to [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox).
 1. Click 'Load Temporary Add-on'.
 1. Select the 'manifest.json' file from this plugin.
+
+Creating .zip file:
+```bash
+zip -r -FS output/fseconomyAssignmentFinder.zip * -x '*.git*' -x 'output/' -x 'modal.html' -x 'README.md' -x '*.xcf'
+```

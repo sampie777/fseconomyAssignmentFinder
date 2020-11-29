@@ -6,7 +6,7 @@ function listenForClicks() {
         });
     }
 
-    function reportError(error) {
+    function onError(error) {
         console.error("Error while sending data to frontend", error);
         document.getElementById("errors").innerText = `Error (2): ${error.message}`;
     }
@@ -25,16 +25,16 @@ function listenForClicks() {
 
                 browser.tabs.query({active: true, currentWindow: true})
                        .then(tabs => executeFrontend(tabs, data))
-                       .catch(reportError);
+                       .catch(onError);
             });
 
 }
 
-function reportExecuteScriptError(error) {
+function onExecuteScriptError(error) {
     console.error("Failed to execute content script for assignment finder", error);
     document.getElementById("errors").innerText = `Error (1): ${error.message}`;
 }
 
 browser.tabs.executeScript({file: "/content_scripts/main.js"})
        .then(listenForClicks)
-       .catch(reportExecuteScriptError);
+       .catch(onExecuteScriptError);

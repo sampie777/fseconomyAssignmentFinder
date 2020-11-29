@@ -99,15 +99,52 @@
             }
         }
 
-        function groupBy(list, key) {
-            return list.reduce((accumulator, current) => {
-                accumulator[current[key]] = accumulator[current[key]] || []
-                accumulator[current[key]].push(current);
-                return accumulator;
-            }, {});
+        function runProcess() {
+            console.log("Loading all airports...");
+            loadAirports()
+                .then(text => processAirports(text))
+                .then(airports => findAirportWithAssignments(airports))
+                .catch(error => {
+                    console.error('Error loading/processing airports', error);
+                    alert("Failed to process airports");
+                });
         }
 
-        const loadAirports = () => {
+        function findAirportWithAssignments(airports) {
+            _airports = airports;
+            window.airports = _airports;
+            nextAirport();
+        }
+
+        function nextAirport() {
+            if (_airports.length === 0) {
+                console.log("No more airports left");
+                alert("No more airports left");
+                return exitProcess();
+            }
+
+            const nextButton = document.getElementById("proposeAirport-Next");
+            if (nextButton !== null) {
+                nextButton.parentNode.innerText = "Loading...";
+            }
+
+            const airport = _airports.shift();
+            window.airport = airport;
+            console.log("Fetching next airport: " + airport.code + "... (" + (_airports.length) + " airports left)");
+            loadAirport(airport)
+                .then(text => {
+                    processAirport(airport, text);
+                    processAssignments(airport);
+                    proposeAirport(airport);
+                })
+                .catch(error => {
+                    console.error('Error loading/processing airport', error);
+                    alert("Failed to process airport " + airport.code);
+                    exitProcess();
+                });
+        }
+
+        function loadAirports() {
             if (useCurrentWebpage) {
                 console.log("  Fetching airports from current page...");
                 return new Promise(resolve => resolve(document.body.innerHTML));
@@ -296,6 +333,11 @@
             airport.aircraft = extractAircraft();
         }
 
+        function processAssignments(airport) {
+            console.log("  Processing assignments...");
+            airport.interestingAssignments = filterAssignments(airport.assignments);
+        }
+
         function filterAssignments(assignments) {
             const filteredByDistance = assignments.filter(a => a.distance < maxDistance);
 
@@ -314,51 +356,6 @@
             filteredByPay.sort((a, b) => a.distance - b.distance);
 
             return filteredByPay;
-        }
-
-        function processAssignments(airport) {
-            console.log("  Processing assignments...");
-            airport.interestingAssignments = filterAssignments(airport.assignments);
-        }
-
-        function removeModal() {
-            const modal = document.getElementById(_proposeAirportModalId);
-            if (modal !== null) {
-                modal.parentNode.removeChild(modal);
-            }
-        }
-
-        function exitProcess() {
-            console.debug("Exiting");
-            removeModal();
-        }
-
-        function nextAirport() {
-            if (_airports.length === 0) {
-                console.log("No more airports left");
-                alert("No more airports left");
-                return exitProcess();
-            }
-
-            const nextButton = document.getElementById("proposeAirport-Next");
-            if (nextButton !== null) {
-                nextButton.parentNode.innerText = "Loading...";
-            }
-
-            const airport = _airports.shift();
-            window.airport = airport;
-            console.log("Fetching next airport: " + airport.code + "... (" + (_airports.length) + " airports left)")
-            loadAirport(airport)
-                .then(text => {
-                    processAirport(airport, text);
-                    processAssignments(airport);
-                    proposeAirport(airport);
-                })
-                .catch(error => {
-                    console.error('Error loading/processing airport', error);
-                    alert("Failed to process airport " + airport.code);
-                    exitProcess();
-                });
         }
 
         function proposeAirport(airport) {
@@ -544,21 +541,24 @@
             nextButton.addEventListener('click', nextAirport);
         }
 
-        function findAirportWithAssignments(airports) {
-            _airports = airports;
-            window.airports = _airports;
-            nextAirport();
+        function removeModal() {
+            const modal = document.getElementById(_proposeAirportModalId);
+            if (modal !== null) {
+                modal.parentNode.removeChild(modal);
+            }
         }
 
-        function runProcess() {
-            console.log("Loading all airports...");
-            loadAirports()
-                .then(text => processAirports(text))
-                .then(airports => findAirportWithAssignments(airports))
-                .catch(error => {
-                    console.error('Error loading/processing airports', error);
-                    alert("Failed to process airports");
-                });
+        function exitProcess() {
+            console.debug("Exiting");
+            removeModal();
+        }
+
+        function groupBy(list, key) {
+            return list.reduce((accumulator, current) => {
+                accumulator[current[key]] = accumulator[current[key]] || []
+                accumulator[current[key]].push(current);
+                return accumulator;
+            }, {});
         }
 
         runProcess();
