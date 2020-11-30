@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "fseconomy Assignment Finder",
   "description": "Plugin to help search for assignments on the fseconomy website",
-  "version": "1.0",
+  "version": "1.1.0",
   "permissions": [
     "activeTab"
   ],
