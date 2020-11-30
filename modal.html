@@ -129,7 +129,7 @@
         </thead>
         <tbody>
         ${airport.aircraft.reduce((acc, cur) => acc + `
-        <tr class="${(new RegExp(preferredAircraft, "i")).test(cur.typ) ? "aircraft-match" : ""}">
+        <tr class="${preferredAircraft !== "" && (new RegExp(preferredAircraft, "i")).test(cur.typ) ? "aircraft-match" : ""}">
             <td>
                 <a href="${cur.href}" target="_blank">${cur.id}</a>
             </td>

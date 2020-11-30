@@ -37,14 +37,12 @@
                 code,
                 size,
                 image,
-                location,
-                country
             ) {
                 this.code = code;
                 this.size = size;
                 this.image = image;
-                this.location = location;
-                this.country = country;
+                this.location = "";
+                this.country = "";
 
                 this.assignments = [];
                 this.interestingAssignments = [];
@@ -172,28 +170,39 @@
 
             let html = document.createElement("html");
             html.innerHTML = text;
-            const table = html.querySelector(".goodssearchTable");
+            const airportsSearchTable = html.querySelector(".goodssearchTable");
+            const assignmentTable = html.querySelector(".assigmentTable");
             html = null;
 
-            if (table === null) {
+            if (airportsSearchTable === null && assignmentTable === null) {
                 if (useCurrentWebpage) {
-                    console.error("Could not find airports table. Are you sure you are using the right page?");
-                    alert("Could not find airports table. Are you sure you are on the right page?");
+                    console.error("Could not find airports on page. Are you sure you are using the right page?");
+                    alert("Could not find airports on page. Are you sure you are on the right page?");
                 } else {
                     console.error("Could not find airports table. API probably returned a wrong response:", text);
-                    alert("Could not find airports table. API probably returned a wrong response.");
+                    alert("Could not find airports. API probably returned a wrong response.");
                 }
                 return [];
             }
 
-            const columnNamesElements = table.querySelectorAll("thead tr th");
+            let tableElement = airportsSearchTable || assignmentTable;
+            const columnNamesElements = tableElement.querySelectorAll("thead tr th");
             const columnNames = Array.from(columnNamesElements).map(e => e.innerText.trim().toLowerCase());
-            const codeColumn = columnNames.indexOf("ICAO".toLowerCase());
-            const imageColumn = columnNames.indexOf("ICAO".toLowerCase());
-            const locationColumn = columnNames.indexOf("Name".toLowerCase());
-            const countryColumn = columnNames.indexOf("Country".toLowerCase());
 
-            const rows = table.querySelectorAll("tbody tr");
+            const codeColumnIndex = airportsSearchTable !== null
+                                    ? columnNames.indexOf("ICAO".toLowerCase())
+                                    : columnNames.indexOf("Dest".toLowerCase());
+            const imageColumnIndex = airportsSearchTable !== null
+                                     ? columnNames.indexOf("ICAO".toLowerCase())
+                                     : columnNames.indexOf("Dest".toLowerCase());
+
+            return processAirportsFromTable(tableElement, codeColumnIndex, imageColumnIndex)
+        }
+
+        function processAirportsFromTable(tableElement,
+                                          codeColumnIndex,
+                                          imageColumnIndex) {
+            const rows = tableElement.querySelectorAll("tbody tr");
 
             const airports = [];
             Array.from(rows).forEach(row => {
@@ -203,20 +212,21 @@
                 }
 
                 let image = "";
-                const imageElement = columns[imageColumn].querySelector("img")
+                const imageElement = columns[imageColumnIndex].querySelector("img")
                 if (imageElement !== null) {
                     image = imageElement.src.match(/\/img\/.*?\.gif/)[0]
                 }
 
                 airports.push(new Airport(
-                    columns[codeColumn].innerText.trim(),    // code
+                    columns[codeColumnIndex].innerText.trim(),    // code
                     image.match(/\/img\/(.*?)\.gif/)[1],  // size
                     image,  // image
-                    columns[locationColumn].innerText.trim(),    // location
-                    columns[countryColumn].innerText.trim(),    // country
                 ));
             });
-            return airports;
+
+            const airportsDistinctByCode = airports.filter((currentAirport, currentIndex, selfArray) =>
+                                                               selfArray.findIndex(airport => airport.code === currentAirport.code) === currentIndex);
+            return airportsDistinctByCode;
         }
 
         function processAirport(airport, text) {
@@ -224,9 +234,15 @@
 
             let html = document.createElement("html");
             html.innerHTML = text;
+            const airportInfoTable = html.querySelector(".airportInfo table");
             const assignmentTable = html.querySelector(".assigmentTable");
             const aircraftTable = html.querySelector(".aircraftTable");
             html = null;
+
+            if (airportInfoTable !== null) {
+                airport.location = airportInfoTable.querySelector("tbody tr:first-of-type td:first-of-type div:first-of-type").innerText.trim()
+                airport.country = airport.location.substring(airport.location.lastIndexOf(",") + 1).trim()
+            }
 
             function extractAssignments() {
                 const columnNamesElements = assignmentTable.querySelectorAll("thead tr th");
@@ -329,8 +345,8 @@
                 return aircraft;
             }
 
-            airport.assignments = extractAssignments();
-            airport.aircraft = extractAircraft();
+            airport.assignments = assignmentTable === null ? [] : extractAssignments();
+            airport.aircraft = aircraftTable === null ? [] : extractAircraft();
         }
 
         function processAssignments(airport) {
@@ -500,7 +516,7 @@
         </thead>
         <tbody>
         ${airport.aircraft.reduce((acc, cur) => acc + `
-        <tr class="${(new RegExp(preferredAircraft, "i")).test(cur.typ) ? "aircraft-match" : ""}">
+        <tr class="${preferredAircraft !== "" && (new RegExp(preferredAircraft, "i")).test(cur.typ) ? "aircraft-match" : ""}">
             <td>
                 <a href="${cur.href}" target="_blank">${cur.id}</a>
             </td>
