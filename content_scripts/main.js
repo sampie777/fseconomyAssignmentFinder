@@ -218,7 +218,7 @@
                 }
 
                 airports.push(new Airport(
-                    columns[codeColumnIndex].innerText.trim(),    // code
+                    columns[codeColumnIndex].querySelector("a[href*='airport.jsp?icao=']").innerText.trim(),    // code
                     image.match(/\/img\/(.*?)\.gif/)[1],  // size
                     image,  // image
                 ));
@@ -285,7 +285,7 @@
                                           .replace("$", "")
                                           .replace(",", "") * 1,   // pay
                         columns[fromColumn].innerText.trim(),     // from
-                        columns[destinationColumn].innerText.trim(),     // destination
+                        columns[destinationColumn].querySelector("a[href*='airport.jsp?icao=']").innerText.trim(),     // destination
                         destinationImage,     // destinationImage
                         columns[distanceColumn].innerText.trim()
                                                .replace(",", "") * 1,    // distance
@@ -334,7 +334,7 @@
                         columns[idColumn].innerText.trim(),    // id
                         columns[typColumn].innerText.trim(),    // type
                         columns[equipmentColumn].innerText.trim(),    // equipment
-                        columns[homeColumn].innerText.trim(),    // home
+                        columns[homeColumn].querySelector("a[href*='airport.jsp?icao=']").innerText.trim(),    // home
                         homeBearingImage,  // homeBearingImage
                         columns[rentalPriceColumn].innerText.trim(),    // price
                         columns[bonusColumn].innerText.trim()
